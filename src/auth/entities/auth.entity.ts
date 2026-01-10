@@ -1,20 +1,45 @@
-import { Column, Entity } from "typeorm";
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+} from "typeorm";
 
-@Entity('user')
+export enum Role {
+  USER = "USER",
+  ADMIN = "ADMIN",
+}
+
+@Entity("users")
 export class User {
-  
-  @Column()
-  id:number
+  @PrimaryGeneratedColumn()
+  id: number;
 
-  @Column({unique:true})
-  email:string
+  @Column({ unique: true })
+  email: string;
 
-  @Column()
-  username:string
-
-  @Column()
-  password:string
+  @Column({ nullable: true })
+  username: string;
 
   @Column()
-  createdAt:number
+  password: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @Column({
+    type: "enum",
+    enum: Role,
+    default: Role.USER,
+  })
+  role: Role;
+
+  @Column({ default: false })
+  isEmailVerified: boolean;
+
+  @Column({
+    type: "varchar",
+    nullable: true,
+  })
+  refreshToken: string | null;
 }

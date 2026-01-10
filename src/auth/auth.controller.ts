@@ -1,34 +1,125 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { LoginDto, RegisterDto } from './dto/create-auth.dto';
+import { JwtAuthGuard } from './guards/jwt.auth.guard';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiTags,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post()
-  create(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.create(createAuthDto);
+  // REGISTER
+  @Post('register')
+  @ApiOperation({ summary: 'Register new user' })
+  @ApiBody({ type: RegisterDto })
+  register(@Body() registerDto: RegisterDto) {
+    return this.authService.register(registerDto);
   }
 
-  @Get()
-  findAll() {
-    return this.authService.findAll();
+  // LOGIN
+  @Post('login')
+  @ApiOperation({ summary: 'Login user' })
+  @ApiBody({ type: LoginDto })
+  login(@Body() loginDto: LoginDto) {
+    return this.authService.login(loginDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
+  // REFRESH TOKEN
+  @Post('refresh')
+  @ApiOperation({ summary: 'Refresh access token' })
+  @ApiBody({
+    schema: {
+      example: {
+        userId: 1,
+        refreshToken: 'refresh_token_here',
+      },
+    },
+  })
+  refresh(@Body() body: { userId: number; refreshToken: string }) {
+    return this.authService.refreshTokens(
+      body.userId,
+      body.refreshToken,
+    );
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
+  // LOGOUT
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Post('logout')
+  @ApiOperation({ summary: 'Logout user' })
+  logout(@Req() req) {
+    return this.authService.logout(req.user.sub);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
+  // FORGOT PASSWORD
+  @Post('forgot-password')
+  @ApiOperation({ summary: 'Send OTP for password reset' })
+  @ApiBody({
+    schema: {
+      example: { email: 'test@gmail.com' },
+    },
+  })
+  forgotPassword(@Body('email') email: string) {
+    return this.authService.forgotPassword(email);
+  }
+
+  // RESET PASSWORD
+  @Post('reset-password')
+  @ApiOperation({ summary: 'Reset password using OTP' })
+  @ApiBody({
+    schema: {
+      example: {
+        email: 'test@gmail.com',
+        otp: '123456',
+        newPassword: 'newpass123',
+      },
+    },
+  })
+  resetPassword(@Body() body: {
+    email: string;
+    otp: string;
+    newPassword: string;
+  }) {
+    return this.authService.resetPassword(
+      body.email,
+      body.otp,
+      body.newPassword,
+    );
+  }
+
+  // CHANGE PASSWORD
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Post('change-password')
+  @ApiOperation({ summary: 'Change password (authorized)' })
+  @ApiBody({
+    schema: {
+      example: {
+        otp: '123456',
+        newPassword: 'newpass123',
+      },
+    },
+  })
+  changePassword(
+    @Req() req,
+    @Body() body: { otp: string; newPassword: string },
+  ) {
+    return this.authService.changePassword(
+      req.user.sub,
+      body.otp,
+      body.newPassword,
+    );
   }
 }
