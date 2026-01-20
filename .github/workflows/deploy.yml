@@ -1,0 +1,30 @@
+
+User@DESKTOP-U1VM126 MINGW64 /d/najot talim/8-oy/EXM 
+(main)
+$ git push origin main
+Enumerating objects: 76, done.
+Counting objects: 100% (76/76), done.  
+Delta compression using up to 2 threads
+Compressing objects: 100% (61/61), done.
+Writing objects: 100% (72/72), 15.04 KiB | 252.00 KiB/s, done.
+Total 72 (delta 7), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (7/7), completed with 
+2 local objects.
+To github.com:Xayrulla2005/8_EXM.git
+   37f7144..43e916a  main -> main
+
+User@DESKTOP-U1VM126 MINGW64 /d/najot talim/8-oy/EXM 
+(main)
+$ git add .
+
+User@DESKTOP-U1VM126 MINGW64 /d/najot talim/8-oy/EXM 
+(main)
+$ git commit -m "commit"
+On branch main
+Your branch is up to date with 'origin/main'.        
+
+nothing to commit, working tree clean
+
+User@DESKTOP-U1VM126 MINGW64 /d/najot talim/8-oy/EXM 
+(main)
+$
